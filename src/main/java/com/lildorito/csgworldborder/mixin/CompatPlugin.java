@@ -13,8 +13,6 @@ public class CompatPlugin implements IMixinConfigPlugin
 {
     private static final Map<String, String> REQUIRED_MODS = Map.of(
             "com.lildorito.csgworldborder.mixin.compat.CanaryCollisionsMixin", "canary",
-            "com.lildorito.csgworldborder.mixin.compat.SuperbWarfareBlocksMixin", "superbwarfare",
-            "com.lildorito.csgworldborder.mixin.compat.MhWarfareBlocksMixin", "mhwarfare",
             "com.lildorito.csgworldborder.mixin.client.XaeroWorldBorderMixin", "xaeroworldborder",
             "com.lildorito.csgworldborder.mixin.client.AtaMapBorderMixin", "ata");
 
@@ -31,7 +29,7 @@ public class CompatPlugin implements IMixinConfigPlugin
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName)
     {
         String mod = REQUIRED_MODS.get(mixinClassName);
-        if (mod == null || Boolean.getBoolean("csgworldborder.compatTest")) return true;
+        if (mod == null) return true;
         LoadingModList mods = LoadingModList.get();
         return mods != null && mods.getModFileById(mod) != null;
     }

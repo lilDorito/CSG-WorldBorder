@@ -6,20 +6,20 @@
   "refmap": "csgworldborder.refmap.json",
   "plugin": "com.lildorito.csgworldborder.mixin.CompatPlugin",
   "mixins": [
-    "AbstractArrowMixin",
     "BucketItemMixin",
+    "ClipContextMixin",
     "EnderManTakeBlockMixin",
     "EntityMixin",
+    "ExplosionDamageCalculatorMixin",
+    "ExplosionMixin",
     "FireBlockMixin",
     "FlowingFluidMixin",
     "LevelMixin",
     "PortalForcerMixin",
-    "ProjectileUtilMixin",
+    "ProjectileAccessor",
     "ServerPlayerMixin",
     "WorldBorderMixin",
-    "compat.CanaryCollisionsMixin",
-    "compat.MhWarfareBlocksMixin",
-    "compat.SuperbWarfareBlocksMixin"
+    "compat.CanaryCollisionsMixin"
   ],
   "client": [
     "client.AtaMapBorderMixin",

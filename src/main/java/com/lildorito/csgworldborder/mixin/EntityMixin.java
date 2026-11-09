@@ -1,6 +1,7 @@
 package com.lildorito.csgworldborder.mixin;
 
 import com.lildorito.csgworldborder.border.BorderCollision;
+import com.lildorito.csgworldborder.border.BorderRaycast;
 import com.lildorito.csgworldborder.border.BorderVolume;
 import com.lildorito.csgworldborder.csg.Volume;
 import net.minecraft.core.Direction;
@@ -11,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,8 +23,32 @@ import java.util.List;
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
+    @Shadow
+    protected boolean firstTick;
+
+    @Unique
+    private static final ThreadLocal<Boolean> CSG$STOPPING = ThreadLocal.withInitial(() -> false);
+
     @Unique
     private AABB csg$before;
+
+    @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
+    private void csg$projectileLeaves(double x, double y, double z, CallbackInfo ci)
+    {
+        Entity self = (Entity) (Object) this;
+        if (firstTick || CSG$STOPPING.get() || !BorderRaycast.leaves(self, x, y, z)) return;
+        ci.cancel();
+        CSG$STOPPING.set(true);
+        try
+        {
+            ((ProjectileAccessor) self).csg$onHit(BorderRaycast.impact(self, x, y, z));
+        }
+        finally
+        {
+            CSG$STOPPING.set(false);
+        }
+        if (!self.isRemoved()) self.discard();
+    }
 
     @Inject(method = "move", at = @At("HEAD"))
     private void csg$beforeMove(MoverType type, Vec3 movement, CallbackInfo ci)

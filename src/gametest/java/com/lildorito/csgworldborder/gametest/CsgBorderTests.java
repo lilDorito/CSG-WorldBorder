@@ -11,6 +11,9 @@ import com.lildorito.csgworldborder.border.PlayerBlocks;
 import com.lildorito.csgworldborder.csg.Volume;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.CommandContextBuilder;
+import net.example.combat.Bullet;
+import net.example.combat.Charge;
+import net.example.combat.Shell;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -30,6 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -39,6 +43,7 @@ import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
@@ -504,14 +509,26 @@ public final class CsgBorderTests
 
         BlockPos target = o.offset(2, 1, 2);
         level.setBlock(target, Blocks.GLASS.defaultBlockState(), 3);
-        helper.assertTrue(!com.atsuishio.superbwarfare.entity.projectile.C4Entity.blast(level, target)
-                && !com.atsuishio.superbwarfare.entity.projectile.MelonBombEntity.blast(level, target)
-                && !com.atsuishio.superbwarfare.event.CustomEventHandler.bulletHit(level, target)
-                && !net.mhackmin.mhwarfare.ata.AlexaEntity.explode(level, target)
-                && level.getBlockState(target).is(Blocks.GLASS), "weapons can't break protected blocks");
+        helper.assertTrue(!new Charge(level).explode(target) && !Charge.inLambda(level, target)
+                && !new Shell(level).hit(target, null) && !new Shell(level).hit(target, survivor)
+                && level.getBlockState(target).is(Blocks.GLASS), "other mods can't break protected blocks directly");
+        survivor.setGameMode(GameType.CREATIVE);
+        helper.assertTrue(new Shell(level).hit(target, survivor) && level.getBlockState(target).isAir(), "a creative breaker may");
+        survivor.setGameMode(GameType.SURVIVAL);
+        level.setBlock(target, Blocks.GLASS.defaultBlockState(), 3);
+        helper.assertTrue(run(helper, "setblock " + at(target) + " air destroy") == 1 && level.getBlockState(target).isAir(), "commands may");
+        level.setBlock(target, Blocks.GLASS.defaultBlockState(), 3);
+        helper.assertTrue(level.destroyBlock(target, false) && level.getBlockState(target).isAir(), "vanilla code may");
+        level.setBlock(target, Blocks.GLASS.defaultBlockState(), 3);
+        BlockPos outside = o.offset(12, 1, 2);
+        level.setBlock(outside, Blocks.GLASS.defaultBlockState(), 3);
+        Explosion late = new Explosion(level, null, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 2.0F, false, Explosion.BlockInteraction.DESTROY);
+        late.getToBlow().add(target);
+        late.getToBlow().addAll(List.of(target, outside));
+        late.finalizeExplosion(false);
+        helper.assertTrue(level.getBlockState(target).is(Blocks.GLASS) && level.getBlockState(outside).isAir(), "blocks added to an explosion late still respect protection");
         helper.assertTrue(run(helper, "worldborder shape protect a none") == 1
-                && com.atsuishio.superbwarfare.entity.projectile.C4Entity.blast(level, target)
-                && level.getBlockState(target).isAir(), "weapons still break unprotected blocks");
+                && new Charge(level).explode(target) && level.getBlockState(target).isAir(), "other mods still break unprotected blocks");
 
         survivor.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FLINT_AND_STEEL));
         run(helper, "worldborder shape protect a inside");
@@ -771,6 +788,18 @@ public final class CsgBorderTests
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2 | 16);
             }
             helper.assertTrue(run(helper, "worldborder settings set blockProjectiles true") == 1, "projectiles on");
+            Snowball probe = new Snowball(level, o.getX() + 0.5, o.getY() + 0.5, o.getZ() + 0.5);
+            Vec3 start = Vec3.atCenterOf(o), end = start.add(30.0, 0.0, 0.0);
+            BlockHitResult traced = Bullet.trace(level, probe, start, end);
+            helper.assertTrue(traced.getType() == HitResult.Type.BLOCK && !level.getWorldBorder().isWithinBounds(traced.getBlockPos())
+                    && traced.getLocation().x < o.getX() + 6.0, "a mod's own raycast stops at the border");
+            helper.assertTrue(Bullet.trace(level, null, start, end).getType() == HitResult.Type.MISS, "a raycast without a projectile passes");
+            Snowball drifter = new Snowball(level, o.getX() + 0.5, o.getY() - 1.5, o.getZ() + 0.5);
+            drifter.setNoGravity(true);
+            level.addFreshEntity(drifter);
+            Snowball kept = new Snowball(level, o.getX() + 0.5, o.getY() - 2.5, o.getZ() + 0.5);
+            kept.setNoGravity(true);
+            level.addFreshEntity(kept);
             Arrow arrow = new Arrow(level, o.getX() + 0.5, o.getY() + 0.5, o.getZ() + 0.5);
             arrow.setDeltaMovement(2.5, 0.0, 0.0);
             level.addFreshEntity(arrow);
@@ -781,7 +810,13 @@ public final class CsgBorderTests
             {
                 helper.assertTrue(arrow.getX() < o.getX() + 5.0, "arrow stopped at the wall, x offset " + (arrow.getX() - o.getX()));
                 helper.assertTrue(snowball.isRemoved(), "snowball broke on the wall");
+                drifter.setPos(o.getX() + 20.5, o.getY() - 1.5, o.getZ() + 0.5);
+                helper.assertTrue(drifter.isRemoved(), "a projectile moving itself outside is removed at the border");
                 helper.assertTrue(run(helper, "worldborder settings set blockProjectiles false") == 1, "projectiles off");
+                kept.setPos(o.getX() + 20.5, o.getY() - 2.5, o.getZ() + 0.5);
+                helper.assertTrue(!kept.isRemoved() && kept.getX() > o.getX() + 20.0, "setting off: it may leave");
+                kept.discard();
+                helper.assertTrue(Bullet.trace(level, probe, start, end).getType() == HitResult.Type.MISS, "setting off: the raycast passes");
                 Arrow free = new Arrow(level, o.getX() + 0.5, o.getY() + 2.5, o.getZ() + 0.5);
                 free.setNoGravity(true);
                 free.setDeltaMovement(2.5, 0.0, 0.0);

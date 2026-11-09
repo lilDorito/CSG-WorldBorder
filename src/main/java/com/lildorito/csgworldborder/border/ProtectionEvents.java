@@ -138,13 +138,6 @@ public final class ProtectionEvents
         if (event.getLevel() instanceof ServerLevel level) PlayerBlocks.get(level).forget(event.getPos());
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onExplosion(ExplosionEvent.Detonate event)
-    {
-        Level level = event.getLevel();
-        event.getAffectedBlocks().removeIf(pos -> BorderProtection.isProtected(level, pos));
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void recordExplosion(ExplosionEvent.Detonate event)
     {

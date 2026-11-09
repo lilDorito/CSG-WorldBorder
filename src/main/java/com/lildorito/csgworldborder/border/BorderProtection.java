@@ -11,12 +11,41 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.border.WorldBorder;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public final class BorderProtection
 {
     private static final Direction[] SIDES = {Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
+    private static final StackWalker WALKER = StackWalker.getInstance();
+    private static final String[] ENGINE = {
+            "net.minecraft.", "net.minecraftforge.", "com.mojang.", "java.", "javax.", "jdk.", "sun.", "kotlin.",
+            "org.spongepowered.", "cpw.mods.", "io.netty.", "com.lildorito.csgworldborder."};
 
     private BorderProtection() {}
+
+    public static boolean refusesModBreaking(Level level, BlockPos pos, @Nullable Entity breaker)
+    {
+        if (level.isClientSide) return false;
+        if (breaker instanceof Player player && player.isCreative()) return false;
+        if (!isProtected(level, pos)) return false;
+        List<String> callers = WALKER.walk(frames -> frames.map(StackWalker.StackFrame::getClassName).toList());
+        boolean mod = false;
+        for (String name : callers)
+        {
+            if (name.startsWith("net.minecraft.commands.") || name.startsWith("net.minecraft.server.commands.")) return false;
+            if (!engine(name)) mod = true;
+        }
+        return mod;
+    }
+
+    private static boolean engine(String name)
+    {
+        for (String prefix : ENGINE)
+        {
+            if (name.startsWith(prefix)) return true;
+        }
+        return false;
+    }
 
     public static boolean isProtected(LevelReader reader, BlockPos pos)
     {

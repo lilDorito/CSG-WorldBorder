@@ -50,7 +50,6 @@ minecraft {
 
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
-            if (project.hasProperty('csgTest')) property 'csgworldborder.compatTest', 'true'
         }
 
         data {

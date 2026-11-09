@@ -375,7 +375,7 @@ reaches all players at once.
 | `protectCeiling` | `true` | | protect the layers below the top |
 | `protectMapBlocksOnly` | `false` | | blocks placed by survival and adventure players are never protected |
 | `insideWarning` | `true` | | red screen near the border from inside; off still shows it outside |
-| `blockProjectiles` | `false` | | arrows, tridents, snowballs, pearls and fireballs stop at the border |
+| `blockProjectiles` | `false` | | projectiles fired inside can't leave: vanilla's and other mods' bullets, rockets, shells and grenades stop at the border |
 | `showBorder` | `true` | | draw the forcefield; off keeps the border working but invisible |
 | `borderFadeDistance` | `60` | 5-100 | how far the forcefield is visible, in % of render distance |
 
@@ -405,7 +405,7 @@ Both block the same things, only in different places:
 | pistons pushing or pulling into or out of it | mines, claymores, C4, deployers and other items that place entities |
 | withers, the Ender Dragon, ravagers, endermen | using items on protected blocks that don't change them (target markers, radios, launchers) |
 | fire burning it, water and lava washing it away | |
-| weapons breaking blocks directly (see [Combat mods](#combat-mods)) | |
+| other mods breaking blocks directly (see [Combat mods](#combat-mods)) | |
 
 The fire, decoration and crystal items come from the item tag `csgworldborder:blocked_on_protected`. Add any
 modded item that changes blocks to it with a datapack, and it's blocked on protected blocks too.
@@ -497,16 +497,27 @@ breaking a player block looks normal on their screen.
 Protection was designed for PvP maps, and combat mods were taken into account, with **Superb Warfare** and
 **MH Warfare** as the examples it was worked out on:
 
-- **Explosions** from any mod that uses Minecraft's explosion event (rockets, shells, bombs, C4, mines, craters)
-  destroy everything around them except protected blocks.
-- **Weapons that break blocks directly**, without an explosion (demolition charges, cannon shells, bullets
-  breaking glass, vehicles crushing blocks), stop at protected blocks.
+- **Explosions** skip protected blocks and destroy everything else around them: vanilla TNT and creepers, and
+  explosions from mods built on Minecraft's explosion classes, including ones that pick their blocks a few ticks
+  later (rockets, shells, aerial bombs, mortar rounds, craters).
+- **Code from other mods that breaks blocks directly**, without an explosion (demolition charges, cannon shells,
+  bullets breaking glass, vehicles crushing blocks), is refused at protected blocks. Vanilla's own block updates
+  and commands like `/setblock … destroy` are not affected.
 - **Mines, claymores, charges, deployers** and other items that place an entity work anywhere, protected or not.
   Target markers, radios, launchers and other items that only aim at a block keep working on protected blocks.
 - **Tools from mods** that strip, till or flatten blocks the vanilla way follow the same rules as vanilla tools.
+- **Projectiles** from any mod stop at the border when `blockProjectiles` is on. To a projectile, the border looks
+  like a solid wall: bullets stop, and impact grenades, rockets and mortar shells explode at the border the way
+  they would against a wall. Projectiles that would punch through, like armor-piercing shells, are removed at the
+  border. Bouncing grenades bounce off it.
 
-A mod that breaks blocks in its own way, outside these paths, can still get around protection. When it's an item
-used on a block, adding the item to the `csgworldborder:blocked_on_protected` tag with a datapack stops it.
+This was checked live in a dedicated server against Superb Warfare's cannon and small cannon shells, RPG and
+medium rockets, mortar shells, and Mk 82, SC 250 and melon bombs: a protected wall survives every one of them,
+while the same wall unprotected is damaged as usual. With `blockProjectiles` on, its bullets, rockets, cannon and
+mortar shells and grenades all stop at the border; with it off, they fly on.
+
+A mod that removes blocks some other way can still get around protection. When it's an item used on a block,
+adding the item to the `csgworldborder:blocked_on_protected` tag with a datapack stops it.
 
 ## Maps and other mods
 
@@ -611,9 +622,9 @@ src/main/java/com/lildorito/csgworldborder
 ├── api/                       public API for other mods
 ├── client/                    editor, settings screen, border renderer, key binding
 │   └── compat/                Xaero World Border and Air Tactical Arsenal map bridges
-└── mixin/                     WorldBorder, Entity, Level, ServerPlayer, PortalForcer, protection hooks
+└── mixin/                     WorldBorder, Entity, Level, Explosion, ServerPlayer, PortalForcer, protection hooks
     ├── client/                border rendering, warning screen, map mod hooks
-    └── compat/                Canary, block-breaking hooks for combat mods
+    └── compat/                Canary
 src/gametest/                  in-game tests, built only with -PcsgTest
 src/main/resources
 ├── assets/csgworldborder/     key binding names

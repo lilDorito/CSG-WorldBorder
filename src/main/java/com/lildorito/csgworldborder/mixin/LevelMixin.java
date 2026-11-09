@@ -1,8 +1,10 @@
 package com.lildorito.csgworldborder.mixin;
 
+import com.lildorito.csgworldborder.border.BorderProtection;
 import com.lildorito.csgworldborder.border.BorderVolume;
 import com.lildorito.csgworldborder.csg.Volume;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -13,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
+
 @Mixin(Level.class)
 public abstract class LevelMixin
 {
@@ -22,6 +26,12 @@ public abstract class LevelMixin
 
     @Shadow
     public abstract WorldBorder getWorldBorder();
+
+    @Inject(method = "destroyBlock(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;I)Z", at = @At("HEAD"), cancellable = true)
+    private void csg$modBreaking(BlockPos pos, boolean drop, @Nullable Entity breaker, int limit, CallbackInfoReturnable<Boolean> cir)
+    {
+        if (BorderProtection.refusesModBreaking((Level) (Object) this, pos, breaker)) cir.setReturnValue(false);
+    }
 
     @Inject(method = "getSharedSpawnPos", at = @At("HEAD"), cancellable = true)
     private void csg$sharedSpawn(CallbackInfoReturnable<BlockPos> cir)

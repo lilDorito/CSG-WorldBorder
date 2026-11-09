@@ -479,7 +479,7 @@ again after you edit it by hand.
 | `protectCeiling` | `true` `false` | `true` | protect the ceiling |
 | `protectMapBlocksOnly` | `true` `false` | `false` | blocks placed by survival and adventure players are never protected |
 | `insideWarning` | `true` `false` | `true` | red screen near the border while inside; outside always shows it |
-| `blockProjectiles` | `true` `false` | `false` | projectiles stop when they hit the border |
+| `blockProjectiles` | `true` `false` | `false` | projectiles fired inside, from vanilla or any mod, stop at the border |
 | `showBorder` | `true` `false` | `true` | draw the forcefield |
 | `borderFadeDistance` | `5`-`100` | `60` | forcefield visible up to this % of render distance |
 
