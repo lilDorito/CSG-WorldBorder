@@ -1,0 +1,75 @@
+CSG WorldBorder
+Copyright (c) 2026 lilDorito. All Rights Reserved.
+
+This license covers the CSG WorldBorder mod (mod ID "csgworldborder"): its compiled
+files, source code, assets, documentation and any part of them (the "Mod").
+
+1. Permitted use
+
+   You may, free of charge:
+   a. download the Mod from an official source published by lilDorito;
+   b. use the Mod in single-player worlds;
+   c. run the Mod on servers you host or administer, public or private;
+   d. record, stream and publish videos, screenshots and reviews showing the Mod;
+   e. distribute worlds, maps and saves that contain data created by the Mod;
+   f. include the Mod in modpacks, mod bundles, launcher profiles and server packs,
+      public or private, on any platform, under the conditions in section 2.
+
+2. Modpacks and bundles
+
+   You may include the Mod in a modpack or bundle (section 1.f) as long as:
+   a. the Mod's jar file is included unmodified, as published by lilDorito;
+   b. the modpack's page or description credits the Mod as "CSG WorldBorder by
+      lilDorito", or lists it in its mod list;
+   c. the Mod is not sold on its own or presented as the main paid content of the
+      bundle. Modpacks that are free to download, including on platforms that reward
+      their authors (such as CurseForge or Modrinth), are allowed.
+   d. the modpack is not used to claim the Mod as someone else's work.
+
+   A modpack may change the Mod's configuration and ship its own
+   defaultconfigs/csgworldborder-server.toml.
+
+3. Restrictions
+
+   Unless lilDorito gives you written permission in advance, you may not:
+   a. redistribute, re-upload, mirror or host the Mod on its own, in whole or in part,
+      anywhere, paid or free, outside a modpack or bundle allowed by section 2;
+   b. modify, adapt, translate, decompile, disassemble or create derivative works of
+      the Mod for the purpose of distributing or publishing them;
+   c. copy any part of the Mod's source code or assets into another project;
+   d. sell the Mod, charge for access to it, or put it behind any paywall, ad link or
+      download gate;
+   e. claim the Mod, or any part of it, as your own work;
+   f. remove or change this license or any copyright notice in the Mod.
+
+   Linking to an official download page of the Mod is always allowed.
+
+4. Other software
+
+   Minecraft is the property of Mojang Studios and Microsoft. Minecraft Forge, Mixin
+   and other libraries are covered by their own licenses. Other mods the Mod works
+   together with belong to their authors; the Mod contains none of their code.
+   This license grants no rights to any of them.
+
+5. Permissions
+
+   Requests for permissions not granted here (re-uploads, modified versions and others)
+   must be sent to lilDorito. Permission is valid only when given in writing, and only
+   for what it explicitly names.
+
+6. Termination
+
+   Any use of the Mod against this license ends your rights under it immediately.
+
+7. No warranty
+
+   THE MOD IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+   ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING LOSS OF WORLDS OR DATA, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE MOD OR ITS USE. KEEP BACKUPS OF YOUR WORLDS.
+
+8. Changes
+
+   lilDorito may change this license for future versions of the Mod. The license that
+   comes with a version of the Mod applies to that version.

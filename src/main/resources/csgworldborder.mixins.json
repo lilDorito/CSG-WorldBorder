@@ -1,0 +1,33 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.lildorito.csgworldborder.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "csgworldborder.refmap.json",
+  "plugin": "com.lildorito.csgworldborder.mixin.CompatPlugin",
+  "mixins": [
+    "AbstractArrowMixin",
+    "BucketItemMixin",
+    "EnderManTakeBlockMixin",
+    "EntityMixin",
+    "FireBlockMixin",
+    "FlowingFluidMixin",
+    "LevelMixin",
+    "PortalForcerMixin",
+    "ProjectileUtilMixin",
+    "ServerPlayerMixin",
+    "WorldBorderMixin",
+    "compat.CanaryCollisionsMixin",
+    "compat.MhWarfareBlocksMixin",
+    "compat.SuperbWarfareBlocksMixin"
+  ],
+  "client": [
+    "client.AtaMapBorderMixin",
+    "client.GuiMixin",
+    "client.LevelRendererMixin",
+    "client.XaeroWorldBorderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
